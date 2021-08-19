@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="homepage">
     <div v-if="error">{{ error }}</div>
     <div v-if="posts.length" class="layout">
       <PostList :posts="posts" />
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { inject } from 'vue'
+import { inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { VueCookieNext } from 'vue-cookie-next'
 import getTodos from '../composables/getTodos.js'
@@ -20,17 +20,29 @@ import getTodos from '../composables/getTodos.js'
 import PostList from '../components/todo/PostList.vue'
 import Spinner from '../components/ui/Spinner.vue'
 import TagCloud from '../components/TagCloud.vue'
+
 export default {
-  name: 'Home',
-  components: { PostList, Spinner, TagCloud },
+  name: "Home",
+ components: {PostList, Spinner, TagCloud},
+  
   setup() {
     const emitter = inject("emitter")
     const router = useRouter()
     const token = VueCookieNext.getCookie('token')
    
     const { posts, error, load } = getTodos( token ) 
-
-    load()
+    
+     onMounted(async() => {
+      await load()
+   
+     console.log(posts.value, error.value)
+       
+       if(error.value){
+        VueCookieNext.removeCookie('token')
+        emitter.emit('cookieClean', null)
+      }
+     
+   })
 
      emitter.on("postdelete", (value) => {
        // *Listen* for event
@@ -39,14 +51,13 @@ export default {
         }
    })
 
-
     return { posts, error }
   },
 }
 </script>
 
 <style>
-  .home {
+  .homepage {
     max-width: 1200px;
     margin: 0 auto;
     padding: 10px;
@@ -56,8 +67,4 @@ export default {
     grid-template-columns: 3fr 1fr;
     gap: 20px;
   }
-</style>
-
-<style>
-
 </style>

@@ -1,7 +1,7 @@
 <template>
-  <div v-if="propstitle" class="post">
-        <h3>{{ propstitle }}</h3>
-    <p class="pre">{{ propscontent }}</p>
+  <div v-if="post.length" class="post">
+        <h3>{{ title }}</h3>
+    <p class="pre">{{ content }}</p>
   </div>
   <div v-else>
     <Spinner/>
@@ -9,21 +9,28 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 import Spinner from '../components/ui/Spinner.vue'
 
 export default {
-  props: ['id', 'title', 'content'],
+  props: ['id'],
   components: { Spinner},
+  
   setup(props) {
-    const propstitle = ref('')
-    const propscontent = ref('')
-    onMounted(() => {
-      propstitle.value = props.title;
-      propscontent.value = props.content;
-    })
+    const title = ref('')
+    const content = ref('')
+    const store = useStore();
    
-    return { propstitle, propscontent}
+  const post = computed(() => {
+    return store.state.posts.filter(post => post.id === Number(props.id))
+  })
+  
+  
+    title.value = post.value[0].title
+    content.value = post.value[0].content
+   
+    return { post, title, content}
   },
 }
 </script>

@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { ref, inject } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex';
 import { VueCookieNext } from 'vue-cookie-next'
@@ -25,9 +25,12 @@ export default {
     const emitter = inject("emitter")
     const router = useRouter()
     const store = useStore()
-    //console.log(router)
-    //router.go(1)
-    //router.go(-1)
+
+    onMounted(() => {
+      if(VueCookieNext.getCookie('token')){
+        router.push({ name: 'Home' })
+      }
+    })
 
     const handleSubmit = async () => {
       const user = {

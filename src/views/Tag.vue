@@ -59,7 +59,7 @@ export default {
         
     })
     //show computed value
-    console.log(postsWithTag.value)
+    //console.log(postsWithTag.value)
 
     return { posts, postsWithTag }
   }

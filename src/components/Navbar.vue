@@ -68,12 +68,16 @@ export default {
         emitter.on("cookieSet", (value) => {   
         // *Listen* for event
         token.value = value
-        console.log("cookieSet received!", `value: ${value}`);
+        //console.log("cookieSet received!", `value: ${value}`);
 
       });
+      //when expired cookie clean,and let token null
+      emitter.on("cookieClean", (value) => {
+        token.value = value
+      })
 
      watch(token, (token, prevToken) => {
-       console.log("watch...", token, prevToken)
+       console.log("watch from navbar...", token, prevToken)
      })
 
      watch(widowWidth, (widowWidth) => {
@@ -126,7 +130,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
   header {
     display: flex;
     justify-content: space-between;
@@ -210,7 +214,7 @@ export default {
     padding-top: 60px;
 }
 
-  .sidebar a {
+  .sidebar a, span {
   padding: 8px 8px 8px 32px;
   text-decoration: none;
   font-size: 25px;
@@ -227,7 +231,7 @@ export default {
   margin-left: 50px;
 }
 
-.sidebar a:hover {
+.sidebar a:hover, span:hover {
   color: #f1f1f1;
 }
 

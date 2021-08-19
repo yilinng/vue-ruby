@@ -1,5 +1,6 @@
 <template>
-  <div class="edit">
+<div v-if="error">{{ error }}</div>
+  <div class="edit" v-if="post.length">
     <form @submit.prevent="handleSubmit">
       <label>Title:</label>
       <input v-model="title" type="text" required>
@@ -16,39 +17,50 @@
       </div>
       <button>Update Post</button>
     </form>
-
+    </div>
+    <div v-else>
+      <Spinner/>
     </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import Spinner from '../components/ui/Spinner.vue'
+import { useStore } from 'vuex'
+import { VueCookieNext } from 'vue-cookie-next'
+import Spinner from '../../components/ui/Spinner.vue'
 
 export default {
-  props: ['id', 'title', 'body', 'tags'],
+  props: ['id'],
   components: { Spinner },
 
   setup(props) {
 
-    const title = ref(props.title)
-    const content = ref(props.content)
-    const tags = ref(props.tags)
+    const title = ref('')
+    const content = ref('')
+    const tags = ref([])
     const tag = ref('')
+    const error = ref('')
 
+    const store = useStore()
     const router = useRouter()
 
-      onMounted(() => {
-        // the DOM element will be assigned to the ref after initial render
-        console.log(props)
-      })
-      
-    const handleClickTag = (tag) => {
+    const post = computed(() => {
+      return store.state.posts.filter(post => post.id === Number(props.id))
+    })
 
-        const filteredTags = tags.value.filter(element => element !== tag)
-        tags.value = filteredTags
-        console.log('work...', filteredTags, tag)
-      }  
+    title.value = post.value[0].title
+    content.value = post.value[0].content
+    
+    
+    const tagsSplit = computed(() => {
+      return post.value[0].tag.split(',')
+    })
+
+    //console.log(tagsSplit.value)
+      
+    tags.value = tagsSplit.value  
+  
 
    const handleKeydown = () => {
    
@@ -56,26 +68,54 @@ export default {
         tag.value = tag.value.replace(/\s/g,'') // remove all whitespace
         tags.value.push(tag.value)
       }
-      tag.value = ''
-      
+      tag.value = ''    
     }
+
+    const handleClickTag = (tag) => {
+
+        const filteredTags = tags.value.filter(element => element !== tag)
+        tags.value = filteredTags
+        //console.log('work...', filteredTags, tag)
+    }  
 
     const handleSubmit = async () => {
-      const post = {
+
+      const tagString = tags.value.join()
+
+      const todo = {
         id: props.id,
         title: title.value,
-        body: body.value,
-        tags: tags.value
+        content: content.value,
+        tag: tagString
       }
-      await fetch('http://localhost:3000/posts/' + props.id, {
+
+      const getToken = VueCookieNext.getCookie('token')
+
+      await fetch('http://localhost:3001/notes/' + props.id, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify(post)
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: "Bearer " + getToken
+        },
+        body: JSON.stringify(todo)
+        }).then(res => {
+        if(res.ok) {
+          return res.json();
+        }
+        throw new Error('Something went wrong.');
       })
-      router.push({name: 'Home'})
+      .then(res => {
+          console.log(res)
+          router.push({name: 'Home'})
+      })
+      .catch(err => {
+       error.value = err
+       })
+     
     }
 
-    return {title, contents, tag, tags, handleSubmit, handleKeydown, handleClickTag}
+    return { post, title, content, tag, tags, error, 
+    handleSubmit, handleKeydown, handleClickTag}
   },
 }
 </script>

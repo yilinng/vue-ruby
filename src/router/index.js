@@ -4,15 +4,15 @@ import Signup from '../views/auth/Signup.vue'
 import Home from '../views/Home.vue'
 import CreateTodo from '../views/todo/Create.vue'
 import TodoDetails from '../views/TodoDetails.vue'
-//import EditTodo from '../views/todo/Edit.vue'
+import Edit from '../views/todo/Edit.vue'
 import Tag from '../views/Tag.vue'
+import Notfound from '../views/Notfound.vue'
 
 const routes = [
     {
         path: '/',
         name: 'Home',
-        component: Home,
-        props: true
+        component: Home
     },
     {
         path: '/signup',
@@ -39,10 +39,21 @@ const routes = [
         props: true
     },
     {
+        path: '/todo/:id/edit',
+        name: 'Edit',
+        component: Edit,
+        props: true
+    },
+    {
         path: '/tags/:tag',
         name: 'Tag',
         component: Tag,
         props: true
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        redirect: '/',
+        component: Notfound
     }
 ]
 

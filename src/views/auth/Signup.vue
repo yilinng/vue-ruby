@@ -14,9 +14,9 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { useRouter} from 'vue-router'
-import Cookies from 'js-cookie'
+import { VueCookieNext } from 'vue-cookie-next'
 
 export default {
   setup() {
@@ -25,8 +25,16 @@ export default {
     const password = ref('')
     const error = ref('')
 
+    const emitter = inject("emitter")
     const router = useRouter()
   
+
+  onMounted(() => {
+      if(VueCookieNext.getCookie('token')){
+        router.push({ name: 'Home' })
+      }
+  })
+
     const handleSubmit = async () => {
       const user = {
         username: username.value,
@@ -45,14 +53,14 @@ export default {
         throw new Error('Something went wrong.');
       })
       .then(res => {
-          Cookies.set('token', res.token)
+          VueCookieNext.setCookie('token', res.token)
+          emitter.emit('cookieSet', res.token)
           router.push({ name: 'Home' })
       })
       .catch(err => {
        error.value = err
        })
 
-      router.push({name: 'Home'})
     }
     return { username, email, password, error, handleSubmit }
   },

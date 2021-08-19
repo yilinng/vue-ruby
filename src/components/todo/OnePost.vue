@@ -1,10 +1,11 @@
 <template>
   <div class="post" v-if="!itemDelete">
     <div class="titleLine">
-    <router-link :to="{name: 'TodoDetails', params: { id: post.id, title: post.title, content: post.content}}">
+    <router-link :to="{name: 'TodoDetails', params: { id: post.id}}">
         <h3>{{ post.title }}</h3>
     </router-link>
     <span class="deletePost" @click="handeleDelete">delete</span>
+    <router-link :to="{name: 'Edit', params: { id: post.id}}">edit</router-link>
     </div>
     <p class="cotent">{{ snippet }}</p>
     <li v-for="tag of tagsSplit" :key="tag" class="taglist">
@@ -17,7 +18,7 @@
 
 <script>
 import { computed, ref, inject } from 'vue'
-import Cookies from 'js-cookie'
+import { VueCookieNext } from 'vue-cookie-next'
 
 export default {
   props: ['post'],
@@ -36,7 +37,7 @@ export default {
       emit('clickItem', itemDelete)
 
        // Emit Events (Method)
-    const getToken = Cookies.get('token')
+    const getToken = VueCookieNext.getCookie('token')
 
     return fetch('http://localhost:3001/notes/' + props.post.id, {
         method: 'DELETE',
@@ -76,16 +77,27 @@ export default {
     display: inline-block;
    
   }
+
+  .titleLine a:last-child{
+    margin-left: 10px;
+    font-size: 17px;
+    padding: 5px;
+    background: #EE82EE;
+    color: #eee;
+    border-radius: 10px;
+    text-decoration: none;
+  }
   h3 {
     display: inline-block;
     font-size: 30px;
     margin-right: 30px;
+    color: #3CB371;
   }
   .deletePost {
     cursor: pointer;
     color: white;
     background-color: orange;
-    border-radius: 10px ;
+    border-radius: 10px;
     padding: 5px;
     font-size: 18px;
   }
