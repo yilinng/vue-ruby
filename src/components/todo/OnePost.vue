@@ -1,12 +1,18 @@
 <template>
   <div class="post" v-if="!itemDelete">
     <div class="titleLine">
-    <router-link :to="{name: 'TodoDetails', params: { id: post.id}}">
-        <h3>{{ post.title }}</h3>
-    </router-link>
-    <span class="deletePost" @click="handeleDelete">delete</span>
-    <router-link :to="{name: 'Edit', params: { id: post.id}}">edit</router-link>
+      
+      <router-link :to="{name: 'TodoDetails', params: { id: post.id}}">
+          <h3>{{ post.title }}</h3>
+      </router-link>
+
+      <div v-if="auth">
+        <span class="deletePost" @click="handeleDelete">delete</span>
+        <router-link :to="{name: 'Edit', params: { id: post.id}}">edit</router-link>
+      </div>
+
     </div>
+  
     <p class="cotent">{{ snippet }}</p>
     <li v-for="tag of tagsSplit" :key="tag" class="taglist">
         #{{ tag }}
@@ -17,7 +23,7 @@
 </template>
 
 <script>
-import { computed, ref, inject } from 'vue'
+import { computed, ref, inject, onMounted } from 'vue'
 import { VueCookieNext } from 'vue-cookie-next'
 
 export default {
@@ -27,6 +33,21 @@ export default {
 
     const emitter = inject("emitter")
     const itemDelete = ref(false)
+    const auth = ref(false)
+         // Emit Events (Method)
+    const getToken = VueCookieNext.getCookie('token')
+
+    onMounted(() => {
+      
+    emitter.on("checkcertainpost", (value) => {
+       // *Listen* for event
+      if(value){
+        console.log(value, 'have emit...from todolist')
+        auth.value = value
+      }
+   })
+    })
+
     const handeleDelete = () => {
 
      const deleteOK = confirm("Want to delete?"); 
@@ -35,9 +56,6 @@ export default {
      
       itemDelete.value = true
       emit('clickItem', itemDelete)
-
-       // Emit Events (Method)
-    const getToken = VueCookieNext.getCookie('token')
 
     return fetch('http://localhost:3001/notes/' + props.post.id, {
         method: 'DELETE',
@@ -57,11 +75,12 @@ export default {
       return props.post.content.substring(0, 100) + '...'
     })
 
+    
     const tagsSplit = computed(() => {
-      return props.post.tag.split(',')
+      return props.post.tags
     })
    
-    return { snippet, tagsSplit, handeleDelete, itemDelete}
+    return { snippet, tagsSplit, handeleDelete, itemDelete, auth}
   }
 }
 </script>
@@ -82,8 +101,6 @@ export default {
     margin-left: 10px;
     font-size: 17px;
     padding: 5px;
-    background: #EE82EE;
-    color: #eee;
     border-radius: 10px;
     text-decoration: none;
   }

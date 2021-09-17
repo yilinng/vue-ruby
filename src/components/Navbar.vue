@@ -1,11 +1,16 @@
 <template>
   <header>
-    <h1>Ruby on rails with vue3</h1>
+    <h1>
+    <router-link :to="{ name: 'Home' }">  
+      Ruby on rails with vue3
+    </router-link>  
+    </h1>
+    
     <nav class="navList">
       <div v-if="error">{{ error }}</div>
         <router-link :to="{ name: 'Home' }">Home</router-link>
       <div v-if="token" class="list"> 
-    
+       <router-link :to="{ name: 'TodoList' }">todolist</router-link>
        <router-link :to="{ name: 'CreateTodo' }">Create Post</router-link>
        <span class="logout" @click="handleLogout">log out</span>
     
@@ -31,6 +36,7 @@
             <router-link :to="{ name: 'Home' }">Home</router-link>
           <div v-if="token" class="list"> 
         
+          <router-link :to="{ name: 'TodoList' }">todolist</router-link>
           <router-link :to="{ name: 'CreateTodo' }">Create Post</router-link>
           <span class="logout" @click="handleLogout">log out</span>
         

@@ -8,7 +8,7 @@
       <input v-model="email" type="email" required>
       <label>Password:</label>
       <input v-model="password" type="password" required>
-      <button>Log in</button>
+      <button>Sign up</button>
     </form>
   </div>
 </template>
@@ -16,6 +16,7 @@
 <script>
 import { ref, inject, onMounted } from 'vue'
 import { useRouter} from 'vue-router'
+import { useStore } from 'vuex'
 import { VueCookieNext } from 'vue-cookie-next'
 
 export default {
@@ -27,7 +28,7 @@ export default {
 
     const emitter = inject("emitter")
     const router = useRouter()
-  
+    const store = useStore()
 
   onMounted(() => {
       if(VueCookieNext.getCookie('token')){
@@ -55,6 +56,7 @@ export default {
       .then(res => {
           VueCookieNext.setCookie('token', res.token)
           emitter.emit('cookieSet', res.token)
+          store.commit('IsAuth', res.token)
           router.push({ name: 'Home' })
       })
       .catch(err => {

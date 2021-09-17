@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { VueCookieNext } from 'vue-cookie-next'
@@ -44,6 +44,14 @@ export default {
 
     const store = useStore()
     const router = useRouter()
+
+    const getToken = VueCookieNext.getCookie('token')
+
+    onMounted(() => {
+      if(!getToken){
+        router.push({name: 'Home'})
+      }
+    })
 
     const post = computed(() => {
       return store.state.posts.filter(post => post.id === Number(props.id))
@@ -89,7 +97,6 @@ export default {
         tag: tagString
       }
 
-      const getToken = VueCookieNext.getCookie('token')
 
       await fetch('http://localhost:3001/notes/' + props.id, {
         method: 'PUT',

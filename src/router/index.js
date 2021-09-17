@@ -2,6 +2,7 @@ import { createWebHistory, createRouter } from "vue-router"
 import Login from '../views/auth/Login.vue'
 import Signup from '../views/auth/Signup.vue'
 import Home from '../views/Home.vue'
+import TodoList from '../views/todo/Todolist.vue'
 import CreateTodo from '../views/todo/Create.vue'
 import TodoDetails from '../views/TodoDetails.vue'
 import Edit from '../views/todo/Edit.vue'
@@ -24,6 +25,12 @@ const routes = [
         path: '/login',
         name: 'Login',
         component: Login,
+        props: true
+    },
+    {
+        path: '/todo',
+        name: 'TodoList',
+        component: TodoList,
         props: true
     },
     {

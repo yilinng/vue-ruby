@@ -22,9 +22,10 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter} from 'vue-router'
-import Cookies from 'js-cookie'
+import { VueCookieNext } from 'vue-cookie-next'
+
 export default {
   setup() {
     const title = ref('')
@@ -37,6 +38,15 @@ export default {
     //console.log(router)
     //router.go(1)
     //router.go(-1)
+
+    const getToken = VueCookieNext.getCookie('token')
+
+    onMounted(() => {
+      if(!getToken){
+        router.push({name: 'Home'})
+      }
+    })
+
     const handleKeydown = () => {
       if (!tags.value.includes(tag.value)) {
         tag.value = tag.value.replace(/\s/g,'') // remove all whitespace
@@ -59,7 +69,6 @@ export default {
         tag: tagString
       }
     
-      const getToken = Cookies.get('token')
 
       await fetch('http://localhost:3001/notes', {
         method: 'POST',

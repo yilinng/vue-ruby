@@ -9,19 +9,16 @@ const useTags = (posts) => {
 
   const tags = ref([])
   const tagSet = new Set()
-  const tagCollect = {}
-
-  posts.forEach((item, index) => {
-    item.tag.split(',').forEach(ta => {
-      tagSet.add(ta.trim())
-      //console.log(ta, index)
-      tagCollect[ta] ? tagCollect[ta].push(index) : tagCollect[ta] = [index]
-      //console.log(tagCollect)
+  
+  posts.forEach(item => {
+    item.tags.filter(it => {
+    if(!tagSet.has(it)) tagSet.add(it)
     })
   })
+  
   tags.value = [...tagSet]
 
-  return { tags, tagCollect }
+  return { tags }
 
 }
 

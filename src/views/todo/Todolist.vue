@@ -15,11 +15,11 @@
 import { inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { VueCookieNext } from 'vue-cookie-next'
-import getTodos from '../composables/getTodos.js'
+import getTodos from '../../composables/getTodolist'
 // component imports
-import PostList from '../components/todo/PostList.vue'
-import Spinner from '../components/ui/Spinner.vue'
-import TagCloud from '../components/TagCloud.vue'
+import PostList from '../../components/todo/PostList.vue'
+import Spinner from '../../components/ui/Spinner.vue'
+import TagCloud from '../../components/TagCloud.vue'
 
 export default {
   name: "Home",
@@ -33,14 +33,31 @@ export default {
     const { posts, error, load } = getTodos( token ) 
     
      onMounted(async() => {
-      await load()
+      await load()       
+
+      if(error.value){
+
+      VueCookieNext.removeCookie('token')
+      //emit to navbar.vue
+      emitter.emit('cookieClean', null);
+      //emit to onePost.vue
+      emitter.emit('checkcertainpost', false)
+      //push back home page
+      router.push({ name: 'Home' })
+      }
+
+      //emit to onePost.vue
+      emitter.emit('checkcertainpost', true)
+
+      console.log(posts.value, error.value)
+     
    })
 
-     emitter.on("postdelete", (value) => {
+    emitter.on("postdelete", (value) => {
        // *Listen* for event
-        if(value){
-          router.go(0)
-        }
+      if(value){
+        router.go(0)
+      }
    })
 
     return { posts, error }
