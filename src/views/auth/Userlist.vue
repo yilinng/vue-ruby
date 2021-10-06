@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { inject, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { VueCookieNext } from 'vue-cookie-next'
 import getUserlist from '../../composables/getUserlist'
@@ -25,11 +25,9 @@ export default {
   
   setup() {
 
-    const emitter = inject("emitter")
     const router = useRouter()
     const token = VueCookieNext.getCookie('token')
-    const auth = VueCookieNext.getCookie('admin')
-
+    //const auth = VueCookieNext.getCookie('admin')
 
     onMounted(() => {
       if(!token){
