@@ -1,5 +1,6 @@
 <template>
   <div class="tag">
+    <div v-if="error">{{ error }}</div>
     <div v-if="posts.length" class="layout">
       <PostList :posts="postsWithTag" />
       <TagCloud :posts="posts" />
@@ -12,8 +13,8 @@
 
 <script>
 import { useRoute } from 'vue-router'
-import { ref, computed } from 'vue'
-import { useStore } from 'vuex'
+import { computed } from 'vue'
+import getTodos from '../composables/getTodos'
 import TagCloud from '../components/TagCloud.vue'
 import Spinner from '../components/ui/Spinner.vue'
 import PostList from '../components/todo/PostList.vue'
@@ -21,55 +22,19 @@ export default {
   components: { PostList, Spinner, TagCloud },
   setup() {
 
-    const posts = ref([])
-    //const tagList = ref([])
-
-    const store = useStore()
-    //const emitter = inject("emitter")
     const route = useRoute()
 
-  
-   posts.value = store.state.posts 
+    const { posts, error, load } = getTodos()
    
-   console.log(posts.value)
+    load()
   
-  
-  /*
-   emitter.on("postlist", (value) => {
-       // *Listen* for event
-        posts.value = JSON.stringify(value[0])
-        tagList.value = JSON.stringify(value[1])
-        console.log("tagvue postlist received!", `value: ${posts.value}`, tagList.value);
-   })
-*/
-
     const postsWithTag = computed(() => {
-     
-      const keyTag = route.params.tag
-      
-      const filteredposts = posts.value.map(post => post.tags.includes(keyTag) ? post : false)
-    
-      return filteredposts.filter(post => post !== false)
-    /*//if data type is string
-      // have index of key
-      const postListbyIndex =  Object.fromEntries(Object.entries(posts.value))
-      //all index
-     const allIndex = Object.keys(postListbyIndex)
-      //filter object
-      const filteredAlready = Object.fromEntries(Object.entries(tagFiltered).filter(([key]) => keyTag.includes(key)))
-      //--->{'vue':[0, 2]}
-      const toArray = filteredAlready[keyTag]
-     
-      // find match index -->['0', '2']
-      const matchIndexPosts = allIndex.filter(po => toArray.includes(Number(po)))
-      // use index find postListbyIndex[index]
-      return matchIndexPosts.map(po => postListbyIndex[po])
-    */    
+      return posts.value.filter(p => p.tags.includes(route.params.tag))
     })
     //show computed value
-    console.log(postsWithTag.value)
+    //console.log(postsWithTag.value)
   
-    return { posts, postsWithTag }
+    return { posts, postsWithTag, error }
   }
 }
 </script>

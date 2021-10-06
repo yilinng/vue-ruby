@@ -1,29 +1,29 @@
 import { ref } from 'vue'
 
-const getTodos = () => {
+const getTodo = (id) => {
 
-    const posts = ref([])
+    const post = ref(null)
     const error = ref(null)
 
     const load = async () => {
       try {
-        let data = await fetch(process.env.VUE_APP_BACKEND_API + '/notes',{
+        let data = await fetch(process.env.VUE_APP_BACKEND_API + '/notes/' + id,{
         method: 'GET',
         headers: {
           "Content-Type": "application/json",
         }
       })
         if(!data.ok) {
-        throw Error('no available data')
+        throw Error('this post does not exist')
         }
-        posts.value = await data.json()
+        post.value = await data.json()
       }
       catch(err) {
         error.value = err.message
       }
     }
 
-    return {posts, error, load}
+    return { post, error, load }
 }
 
-export default getTodos
+export default getTodo

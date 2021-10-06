@@ -1,15 +1,19 @@
 <template>
   <header>
-    <h1>
-    <router-link :to="{ name: 'Home' }">  
-      Ruby on rails with vue3
-    </router-link>  
+    <h1 class="topic">
+      <router-link :to="{ name: 'Home' }">
+        Ruby on rails 
+        <span>with vue3</span>
+      </router-link>  
     </h1>
     
     <nav class="navList">
       <div v-if="error">{{ error }}</div>
         <router-link :to="{ name: 'Home' }">Home</router-link>
-      <div v-if="token" class="list"> 
+      <div v-if="token" class="list">
+        <div v-if="auth !== 'null'">
+          <router-link :to="{ name: 'Userlist' }">UserList</router-link>
+        </div> 
        <router-link :to="{ name: 'TodoList' }">todolist</router-link>
        <router-link :to="{ name: 'CreateTodo' }">Create Post</router-link>
        <span class="logout" @click="handleLogout">log out</span>
@@ -34,10 +38,14 @@
           <a href="javascript:void(0)" class="closebtn" @click="closeNav">&times;</a>
           <nav class="navlist">
             <router-link :to="{ name: 'Home' }">Home</router-link>
-          <div v-if="token" class="list"> 
-        
+          <div v-if="token" class="list">
+
+            <div v-if="auth !== 'null'">
+              <router-link :to="{ name: 'Userlist' }">UserList</router-link>
+            </div>
           <router-link :to="{ name: 'TodoList' }">todolist</router-link>
           <router-link :to="{ name: 'CreateTodo' }">Create Post</router-link>
+            
           <span class="logout" @click="handleLogout">log out</span>
         
           </div>
@@ -54,38 +62,43 @@
 
 <script>
 import { ref, inject, watch, onMounted } from 'vue'
-import { useStore } from 'vuex'
+//import { useStore } from 'vuex'
 import { VueCookieNext } from 'vue-cookie-next'
 import { useRouter } from 'vue-router'
 
 export default {
   setup(){
+
     const token = ref('')
     const error = ref('')
+    const auth = ref('')
     const showSide = ref(false)
     const widowWidth = ref(window.innerWidth)
 
     const emitter = inject("emitter")
-    const store = useStore()
+    //const store = useStore()
     const router = useRouter()
 
-      token.value = VueCookieNext.getCookie('token') 
-     
-        emitter.on("cookieSet", (value) => {   
+      token.value = VueCookieNext.getCookie('token')
+      auth.value = VueCookieNext.getCookie('admin')
+      
+      //if is admin can see userlist
+
+      emitter.on("cookieSet", (value) => {   
         // *Listen* for event
         token.value = value
         //console.log("cookieSet received!", `value: ${value}`);
-
       });
       //when expired cookie clean,and let token null
       emitter.on("cookieClean", (value) => {
         token.value = value
       })
-
+/*
      watch(token, (token, prevToken) => {
        console.log("watch from navbar...", token, prevToken)
      })
-
+*/
+//when widowwidth is more then 600 ,then hide sidenav
      watch(widowWidth, (widowWidth) => {
         if(widowWidth > 600 && showSide.value === true){
           showSide.value = false
@@ -107,7 +120,7 @@ export default {
      }
 
       const handleLogout = async () => {
-          await fetch('http://localhost:3001/logout', {
+          await fetch(process.env.VUE_APP_BACKEND_API + '/logout', {
           method: 'Delete',
           headers: { 
           'Content-Type': 'application/json',
@@ -122,8 +135,9 @@ export default {
       })
       .then(res => {
           VueCookieNext.removeCookie('token')
+          VueCookieNext.removeCookie('admin')
           console.log(res)
-          store.commit('IsAuth', false)
+          //store.commit('IsAuth', false)
           router.go(0)
       })
       .catch(err => {
@@ -131,7 +145,7 @@ export default {
        })
       }
 
-    return { token, handleLogout, error, showSide, handleShow, closeNav }
+    return { token, auth, handleLogout, error, showSide, handleShow, closeNav }
   }
 }
 </script>
@@ -145,7 +159,7 @@ export default {
     margin: 0 auto;
     padding: 10px;
   }
-  header h1 {
+  header .topic {
     color: #dfdfdf;
     font-size: 48px;
   }
@@ -175,9 +189,14 @@ export default {
   }
 
   @media screen and (max-width: 600px) {
-  header h1{
+  header .topic{
     font-size: 35px;
   }
+
+  header .topic span{
+    font-size: 35px;
+  }
+
   .navList{
     display: none;
   }
@@ -198,13 +217,13 @@ export default {
     .slide-enter-active,
     .slide-leave-active
     {
-        transition: transform 0.2s ease;
+      transition: transform 0.2s ease;
     }
 
     .slide-enter,
     .slide-leave-to {
-        transform: translateX(-100%);
-        transition: all 150ms ease-in 0s
+      transform: translateX(-100%);
+      transition: all 150ms ease-in 0s
     }
 
 .sidebar-panel{

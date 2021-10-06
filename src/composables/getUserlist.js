@@ -1,29 +1,31 @@
 import { ref } from 'vue'
 
-const getTodos = () => {
+const getUserlist = (token) => {
 
-    const posts = ref([])
+    const users = ref([])
     const error = ref(null)
 
     const load = async () => {
       try {
-        let data = await fetch(process.env.VUE_APP_BACKEND_API + '/notes',{
+        let data = await fetch(process.env.VUE_APP_BACKEND_API + '/userlist',{
         method: 'GET',
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
         }
       })
         if(!data.ok) {
         throw Error('no available data')
         }
-        posts.value = await data.json()
+        users.value = await data.json()
+        users.value = users.value.user
       }
       catch(err) {
         error.value = err.message
       }
     }
 
-    return {posts, error, load}
+    return {users, error, load}
 }
 
-export default getTodos
+export default getUserlist

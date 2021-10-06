@@ -12,9 +12,9 @@
 </template>
 
 <script>
-import { inject, onMounted } from 'vue'
+import { inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { VueCookieNext } from 'vue-cookie-next'
+//import { VueCookieNext } from 'vue-cookie-next'
 import getTodos from '../composables/getTodos.js'
 // component imports
 import PostList from '../components/todo/PostList.vue'
@@ -23,24 +23,22 @@ import TagCloud from '../components/TagCloud.vue'
 
 export default {
   name: "Home",
- components: {PostList, Spinner, TagCloud},
+ components: { PostList, Spinner, TagCloud },
   
   setup() {
     const emitter = inject("emitter")
     const router = useRouter()
-    const token = VueCookieNext.getCookie('token')
+    //const token = VueCookieNext.getCookie('token')
    
-    const { posts, error, load } = getTodos( token ) 
+    const { posts, error, load } = getTodos()     
     
-     onMounted(async() => {
-      await load()
-   })
-
-     emitter.on("postdelete", (value) => {
-       // *Listen* for event
-        if(value){
-          router.go(0)
-        }
+    load()
+  
+    emitter.on("postdelete", (value) => {
+      // *Listen* for event
+      if(value){
+        router.go(0)
+      }
    })
 
     return { posts, error }

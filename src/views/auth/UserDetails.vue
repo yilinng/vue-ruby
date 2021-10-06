@@ -1,8 +1,8 @@
 <template>
   <div v-if="error">{{ error }}</div>
-  <div v-if="post" class="post">
-    <h3>{{ post.title }}</h3>
-    <p class="pre">{{ post.content }}</p>
+  <div v-if="user" class="post">
+    <h3>{{ user.username }}</h3>
+    <h3>{{ user.email }}</h3>
   </div>
   <div v-else>
     <Spinner/>
@@ -10,9 +10,11 @@
 </template>
 
 <script>
+
+import { VueCookieNext } from 'vue-cookie-next'
 import { useRoute } from 'vue-router'
-import getTodo from '../composables/getTodo'
-import Spinner from '../components/ui/Spinner.vue'
+import getUser from '../../composables/getUser'
+import Spinner from '../../components/ui/Spinner.vue'
 
 export default {
   name: "TodoDetails",
@@ -21,12 +23,13 @@ export default {
   setup() {
 
     const route = useRoute()
+    const token = VueCookieNext.getCookie('token')
 
-    const { post, error, load } = getTodo(route.params.id)
+    const { user, error, load } = getUser(route.params.id, token)
    
     load()
    
-    return { error, post}
+    return { error, user }
   },
 }
 </script>

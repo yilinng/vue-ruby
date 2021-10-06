@@ -1,13 +1,13 @@
 import { ref } from 'vue'
 
-const getTodolist = (token) => {
+const getUser = (id, token) => {
 
-    const posts = ref([])
+    const user = ref(null)
     const error = ref(null)
 
     const load = async () => {
       try {
-        let data = await fetch(process.env.VUE_APP_BACKEND_API + '/notelist',{
+    let data = await fetch(process.env.VUE_APP_BACKEND_API + '/userlist/' + id,{
         method: 'GET',
         headers: {
           "Content-Type": "application/json",
@@ -15,16 +15,16 @@ const getTodolist = (token) => {
         }
       })
         if(!data.ok) {
-        throw Error('no available data')
+        throw Error('this user does not exist')
         }
-        posts.value = await data.json()
+        user.value = await data.json()
       }
       catch(err) {
         error.value = err.message
       }
     }
 
-    return {posts, error, load}
+    return { user, error, load }
 }
 
-export default getTodolist
+export default getUser

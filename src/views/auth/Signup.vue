@@ -42,7 +42,7 @@ export default {
         email: email.value,
         password: password.value
       }
-      await fetch('http://localhost:3001/users', {
+      await fetch(process.env.VUE_APP_BACKEND_API + '/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify(user)

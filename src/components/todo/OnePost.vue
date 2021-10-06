@@ -2,13 +2,15 @@
   <div class="post" v-if="!itemDelete">
     <div class="titleLine">
       
-      <router-link :to="{name: 'TodoDetails', params: { id: post.id}}">
-          <h3>{{ post.title }}</h3>
+      <router-link :to="{ name: 'TodoDetails', params: { id: post.id }}">
+        <h3>{{ post.title }}</h3>
       </router-link>
 
       <div v-if="auth">
-        <span class="deletePost" @click="handeleDelete">delete</span>
-        <router-link :to="{name: 'Edit', params: { id: post.id}}">edit</router-link>
+        <span class="deletePost" @click="handeleDelete(post.id)">delete</span>
+        <router-link :to="{ name: 'Edit', params: { id: post.id}}">
+          edit
+        </router-link>
       </div>
 
     </div>
@@ -35,7 +37,7 @@ export default {
     const itemDelete = ref(false)
     const auth = ref(false)
          // Emit Events (Method)
-    const getToken = VueCookieNext.getCookie('token')
+    const token = VueCookieNext.getCookie('token')
 
     onMounted(() => {
       
@@ -48,21 +50,21 @@ export default {
    })
     })
 
-    const handeleDelete = () => {
+    const handeleDelete = (id) => {
 
      const deleteOK = confirm("Want to delete?"); 
-     
+    
      if(deleteOK){
      
       itemDelete.value = true
       emit('clickItem', itemDelete)
 
-    return fetch('http://localhost:3001/notes/' + props.post.id, {
+    return fetch(process.env.VUE_APP_BACKEND_API + '/notes/' + id, {
         method: 'DELETE',
-         headers: { 
+        headers: { 
           'Content-Type': 'application/json',
-          Authorization: "Bearer " + getToken
-          }
+          Authorization: "Bearer " + token
+        }
       })
       .then(response => response.text())
       .catch(error => console.log(error))

@@ -1,6 +1,6 @@
 <template>
 <div v-if="error">{{ error }}</div>
-  <div class="edit" v-if="post.length">
+  <div class="edit" v-if="post">
     <form @submit.prevent="handleSubmit">
       <label>Title:</label>
       <input v-model="title" type="text" required>
@@ -24,9 +24,10 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+//import { useStore } from 'vuex'
+import getTodo from '../../composables/getTodo'
 import { VueCookieNext } from 'vue-cookie-next'
 import Spinner from '../../components/ui/Spinner.vue'
 
@@ -36,39 +37,46 @@ export default {
 
   setup(props) {
 
+    const emitter = inject("emitter")
     const title = ref('')
     const content = ref('')
     const tags = ref([])
     const tag = ref('')
-    const error = ref('')
 
-    const store = useStore()
+    //const store = useStore()
     const router = useRouter()
 
-    const getToken = VueCookieNext.getCookie('token')
+    const token = VueCookieNext.getCookie('token')
 
-    onMounted(() => {
-      if(!getToken){
-        router.push({name: 'Home'})
+    const { post, error, load } = getTodo( props.id )
+
+    onMounted(async() => {
+
+      await load()       
+
+      if(error.value){
+
+      VueCookieNext.removeCookie('token')
+      //emit to navbar.vue
+      emitter.emit('cookieClean', null);
+      //emit to onePost.vue
+      emitter.emit('checkcertainpost', false)
+      //push back home page
+      router.push({ name: 'Home' })
       }
-    })
 
-    const post = computed(() => {
-      return store.state.posts.filter(post => post.id === Number(props.id))
-    })
+      //emit to onePost.vue
+      emitter.emit('checkcertainpost', true)
 
-    title.value = post.value[0].title
-    content.value = post.value[0].content
-    
-    
-    const tagsSplit = computed(() => {
-      return post.value[0].tag.split(',')
-    })
+      console.log(post.value, error.value)
 
-    //console.log(tagsSplit.value)
+      title.value = post.value.title
       
-    tags.value = tagsSplit.value  
-  
+      content.value = post.value.content
+
+      tags.value = post.value.tags     
+   })
+
 
    const handleKeydown = () => {
    
@@ -88,21 +96,19 @@ export default {
 
     const handleSubmit = async () => {
 
-      const tagString = tags.value.join()
-
       const todo = {
         id: props.id,
         title: title.value,
         content: content.value,
-        tag: tagString
+        tags: tags.value
       }
 
 
-      await fetch('http://localhost:3001/notes/' + props.id, {
+      await fetch(process.env.VUE_APP_BACKEND_API + '/notes/' + props.id, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
-          Authorization: "Bearer " + getToken
+          Authorization: "Bearer " + token
         },
         body: JSON.stringify(todo)
         }).then(res => {

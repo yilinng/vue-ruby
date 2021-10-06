@@ -35,9 +35,6 @@ export default {
     const error = ref('')
 
     const router = useRouter()
-    //console.log(router)
-    //router.go(1)
-    //router.go(-1)
 
     const getToken = VueCookieNext.getCookie('token')
 
@@ -54,6 +51,7 @@ export default {
       }
       tag.value = ''
     }
+
     const handleClickTag = (tag) => {
        const filteredTags = tags.value.filter(element => element !== tag)
         tags.value = filteredTags
@@ -61,16 +59,15 @@ export default {
     }
 
     const handleSubmit = async () => {
-      const tagString = tags.value.join()
       
       const todo = {
         title: title.value,
         content: content.value,
-        tag: tagString
+        tags: tags.value
       }
     
 
-      await fetch('http://localhost:3001/notes', {
+      await fetch(process.env.VUE_APP_BACKEND_API + '/notes', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

@@ -2,6 +2,8 @@
   <div class="Login">
     <div v-if="error">{{ error }}</div>
     <form @submit.prevent="handleSubmit">
+      <p>email: admin@admin.com</p>
+      <p>password: admin</p>
       <label>Email:</label>
       <input v-model="email" type="email" required>
       <label>Password:</label>
@@ -14,7 +16,7 @@
 <script>
 import { ref, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex';
+//import { useStore } from 'vuex';
 import { VueCookieNext } from 'vue-cookie-next'
 export default {
   setup() {
@@ -24,7 +26,7 @@ export default {
     
     const emitter = inject("emitter")
     const router = useRouter()
-    const store = useStore()
+    //const store = useStore()
 
     onMounted(() => {
       if(VueCookieNext.getCookie('token')){
@@ -37,7 +39,7 @@ export default {
         email: email.value,
         password: password.value
       }
-      await fetch('http://localhost:3001/login', {
+      await fetch(process.env.VUE_APP_BACKEND_API + '/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify(user)
@@ -49,9 +51,11 @@ export default {
         throw new Error('Something went wrong.');
       })
       .then(res => {
+        res.user.role === 'admin' ? VueCookieNext.setCookie('admin', Math.random().toString(36).substr(2, 5)) : VueCookieNext.setCookie('admin', null)
+        
           VueCookieNext.setCookie('token', res.token)
           emitter.emit('cookieSet', res.token)
-          store.commit('IsAuth', res.token)
+          //store.commit('IsAuth', res.token)
           router.push({ name: 'Home' })
       })
       .catch(err => {

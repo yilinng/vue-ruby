@@ -10,20 +10,11 @@
 </template>
 
 <script>
-import { inject } from 'vue'
-import { useStore } from 'vuex'
 import useTags from '../composables/useTags'
 export default {
   setup(props) {
 
-    const store = useStore()
-    const emitter = inject("emitter")
-    const { tags, tagCollect } = useTags(props.posts)
-    //store from vuex
-    store.commit('havePosts', props.posts)
-    store.commit('haveTags', tagCollect)
-    //from eventBus vue
-    emitter.emit('postlist', [props.posts, tagCollect])
+    const { tags } = useTags(props.posts)
 
     return { tags }
   },
